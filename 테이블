@@ -1,0 +1,77 @@
+테이블 만들기 (쇼핑몰 마리아DB)
+관리자 admin@admin.com / 1234
+
+== 회원가입 테이블
+CREATE TABLE mall2.tbl_member (
+userId VARCHAR(50) NOT NULL,
+userPass VARCHAR(100) NOT NULL,
+userName VARCHAR(30) NOT NULL,
+userPhone VARCHAR(20) NOT NULL,
+userAddr1 VARCHAR(20) NULL,
+userAddr2 VARCHAR(50) NULL,
+userAddr3 VARCHAR(50) NULL,
+regiDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
+verify INT DEFAULT 0,
+PRIMARY KEY(userId)
+);
+
+== 상품 테이블
+create table tbl_goods (
+    gdsNum       int          not null, 
+    gdsName      varchar(50)    not null, 
+    cateCode     varchar(30)    not null, 
+    gdsPrice     int          not null, 
+    gdsStock     int          null, 
+    gdsDes       varchar(500)    null, 
+    gdsImg       varchar(200)    null, 
+    gdsTimestamp      Timestamp            default current_timestamp(),
+    primary key(gdsNum)   
+);
+
+== 상품 번호용 시퀀스
+create sequence tbl_goods_seq;
+
+== 상품등록 명령어
+INSERT INTO tbl_goods(gdsNum, gdsName, cateCode, gdsPrice, gdsStock, gdsDes)
+VALUES(nextval(tbl_goods_seq), '상품 이름', '100', '1000', '30', '상품 설명');
+
+== 관리자 설정 명령어
+UPDATE tbl_member
+	set
+		verify = 9
+	WHERE userId = '원하는 이메일주소';
+	
+== 카테고리 테이블
+포린키 설정은 cateCode의 하위설정을 위해서 설정 2차카테고리 -> 1차카테고리 위해서
+
+CREATE TABLE mall2.goods_category (
+	cateName VARCHAR(20) NOT NULL,
+	cateCode VARCHAR(30) NOT NULL,
+	cateCodeRef VARCHAR(30) NULL,
+	PRIMARY KEY(cateCode),
+	FOREIGN KEY(cateCodeRef) REFERENCES goods_category(cateCode)
+);	
+
+== 카테고리 테이블 생성 명령어 
+상품명 / 하위상품코드 / 상위상품코드
+
+insert into goods_category (cateName, cateCode) values ('재테크 상품', '100');
+insert into goods_category (cateName, cateCode, cateCodeRef) values ('주식', '101', '100');
+insert into goods_category (cateName, cateCode, cateCodeRef) values ('채권', '102', '100');
+
+insert into goods_category (cateName, cateCode) values ('부동산', '200');
+insert into goods_category (cateName, cateCode) values ('가상자산', '300');
+
+== 카테고리 테이블 계층형 쿼리 생성 (어려움 반드시 공부 해야함)
+WITH recursive cte AS(
+SELECT cateName, cateCode, cateCodeRef, 1 AS LEVEL
+FROM goods_category
+WHERE cateCodeRef IS NULL
+UNION ALL
+SELECT p.cateName, p.cateCode,p.cateCodeRef, 1+ LEVEL AS LEVEL
+FROM goods_category p
+INNER JOIN cte
+ON p.cateCodeRef = cte.cateCode)
+SELECT cateName, cateCode, cateCodeRef, LEVEL FROM cte;
+
+== 

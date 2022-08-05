@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mall.mappers.memberMapper">
+
+<!-- 회원가입 -->
+<insert id="signup">
+	insert into tbl_member(userId, userPass, userName, userPhon, useridx, verify)
+		values(#{userId}, #{userPass}, #{userName}, #{userPhon}, NEXTVAL(tbl_member_seq), 1)
+</insert>
+
+<!-- 로그인 -->
+<select id="signin" resultType="com.mall.domain.MemberVO">
+	select
+		userId, userPass, userName, userPhon, userAddr1, userAddr2, userAddr3, regDate, verify, useridx
+	from
+		tbl_member
+	where userId = #{userId}
+</select>
+
+<!-- 회원목록 -->
+<select id="memberlist" resultType="com.mall.domain.MemberVO" >
+	SELECT useridx, userId, userName, userPhon, userAddr1,userAddr2,userAddr3,regDate , verify
+	FROM tbl_member
+	ORDER BY useridx
+</select>
+
+<!-- 회원정보 보기 -->
+<select id="memberview" parameterType="int" resultType="com.mall.domain.MemberVO">
+	select useridx, userId, userName, userPhon, userAddr1,userAddr2,userAddr3, regDate, userPass, verify
+	from tbl_member
+	where useridx = #{useridx}
+</select>
+
+<!-- 회원정보 수정 -->
+<update id="memberModify" parameterType="com.mall.domain.MemberVO">
+	update tbl_member
+	set 
+		userName = #{userName},
+		userPhon = #{userPhon},
+		userAddr1 = #{userAddr1}
+	where useridx = #{useridx}
+</update>
+
+<!-- 회원정보 삭제 -->
+<delete id="memberDelete" parameterType="int">
+	delete
+	from tbl_member
+	where useridx = #{useridx}
+</delete>
+
+
+
+
+</mapper>
